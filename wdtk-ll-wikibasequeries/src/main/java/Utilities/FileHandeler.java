@@ -141,16 +141,33 @@ public class FileHandeler {
     }
     
     public static HashMap<String, String> getLabelsToLineMap(File input, String separator) throws FileNotFoundException, IOException{
+    	
         final String SEPARATOR = separator;
         HashMap<String, String> result = new HashMap();
         BufferedReader reader = new BufferedReader(new FileReader(input));
         String line;
         
         while((line = reader.readLine()) != null){
-        	System.out.println(line);
             int     commaIndx = line.contains(SEPARATOR) ? line.indexOf(SEPARATOR) : line.length();
             String  nodeLabel = line.substring(0, commaIndx).trim().toUpperCase();
             result.put(nodeLabel, line);
+        }
+        
+        reader.close();
+        return result;       
+    }
+    
+    public static HashMap<String, String> getLabelToValueMap(File input, String separator) throws FileNotFoundException, IOException{
+    	
+        final String SEPARATOR = separator;
+        HashMap<String, String> result = new HashMap();
+        BufferedReader reader = new BufferedReader(new FileReader(input));
+        String line;
+        
+        while((line = reader.readLine()) != null){
+            int     commaIndx = line.contains(SEPARATOR) ? line.indexOf(SEPARATOR) : line.length();
+            String  nodeLabel = line.substring(0, commaIndx).trim().toUpperCase();
+            result.put(nodeLabel, line.substring(commaIndx + 1));
         }
         
         reader.close();
@@ -164,12 +181,13 @@ public class FileHandeler {
      * @throws IOException
      */
     public static ArrayList<String> getLinesInFile(File inputfile) throws IOException{
+    	
     	ArrayList<String> result = new ArrayList<String>();
     	BufferedReader reader = new BufferedReader(new FileReader(inputfile));
     	
     	String line;
     	while((line = reader.readLine()) != null){
-    		System.out.println(line);
+    		
     		result.add(line);
     	}
     	return result;

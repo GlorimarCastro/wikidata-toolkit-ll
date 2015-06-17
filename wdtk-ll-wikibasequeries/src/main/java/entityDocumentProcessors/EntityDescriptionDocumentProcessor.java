@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.wikidata.wdkt.enums.Language;
 import org.wikidata.wdkt.enums.Property;
 import org.wikidata.wdtk.datamodel.interfaces.EntityDocumentProcessor;
@@ -22,13 +23,16 @@ import org.wikidata.wdtk.datamodel.interfaces.StatementGroup;
 import org.wikidata.wdtk.datamodel.interfaces.Value;
 import org.wikidata.wdtk.datamodel.interfaces.ValueSnak;
 
+import Interfaces.EntityDocumentProcessorExtended;
+import Utilities.GlobalVariables;
+
 /**
  *Given a list of people names it save in a file the name and description of the person.
  * It assign a null description if the entity were not found. The method setEntityInformationMap is the one
  * that is going to set all the properties to look for. If this method is changed the results array list header should be changed as well.
  * @author GL26163
  */
-public class EntityDescriptionDocumentProcessor implements EntityDocumentProcessor{
+public class EntityDescriptionDocumentProcessor implements EntityDocumentProcessorExtended{
 
 	//===========================================================================================================================
 	//=================FILEDS=======================FIELDS=======================FIELDS=================================FIELDS===
@@ -48,25 +52,29 @@ public class EntityDescriptionDocumentProcessor implements EntityDocumentProcess
 	private ArrayList<String> results = null;
 	
 	private  HashMap<String, String> entityInformattionMap = null;
-	
+	private ArrayList<String> enttitiesSet = null;
 	private final String ENTITY_ID = "entityid";
 	
-	public static String resultFilename = "roleannotation.csv";
+	//public static String resultFilename = "roleAnnotation.csv";
+	
+	
 	
 	//===========================================================================================================================
 	//==================================CONSTRUCTOR====================================CONSTRUCTOR===============================
 	//===========================================================================================================================
-	public EntityDescriptionDocumentProcessor(String filePath) throws FileNotFoundException, IOException {
-		if(filePath == null){
+	public EntityDescriptionDocumentProcessor(String inputFile) throws FileNotFoundException, IOException {
+		if(inputFile == null){
 			throw new IllegalArgumentException("Input file cannot be null.");
 		}
 		
-		inputFile 				= new File(filePath);
-		fileDataMap 			= getLabelsToLineMap(inputFile);
+		this.inputFile 				= new File(inputFile);
+		fileDataMap 			= getLabelsToLineMap(this.inputFile);
 		results					= new ArrayList<String>();
+		enttitiesSet			= new ArrayList<String>();
 		entityInformattionMap 	= new HashMap<String, String>();
+		results.add("");
+    	
 		
-		results.add("Name,Description,Ocupation Wikidata Ids, Member of, Religion");
 		setEntityInformationMap();
 	}
 	
@@ -93,6 +101,7 @@ public class EntityDescriptionDocumentProcessor implements EntityDocumentProcess
     		
     		//If the entity is in the input file then process it
     		if(fileDataMap.containsKey(name)){
+    			enttitiesSet.add(name);
     			//add entity name
     			entityInformattionMap.put("name", name);
     			System.out.println(name);
@@ -137,11 +146,10 @@ public class EntityDescriptionDocumentProcessor implements EntityDocumentProcess
     	    			   Value v = snak.getValue();
     	    			   
     	    			   if (v instanceof ItemIdValue) {
-    							temp+= ((ItemIdValue) v).getId() + "|";
+    							temp+= ((ItemIdValue) v).getId() + GlobalVariables.propertiesDelimiter;
     						}
     	    		   }
     	    	   }
-    	    	   if(temp.length() > 1 ) temp = temp.substring(0, temp.length() - 1);
     	    	   entityInformattionMap.put(sg.getProperty().getId(), temp);
     	    	   
     			}
@@ -195,10 +203,10 @@ public class EntityDescriptionDocumentProcessor implements EntityDocumentProcess
      */
     private void addMapToResultList(){
     	String line = entityInformattionMap.get("name") + "," + 
-    				entityInformattionMap.get("description").replaceAll(",", "|") + "," +
-    				entityInformattionMap.get(Property.OCCUPATION.toString()).replaceAll(",", "|") + "," +
-    				entityInformattionMap.get(Property.MEMBER_OF.toString()).replaceAll(",", "|") + "," +
-    				entityInformattionMap.get(Property.RELIGION.toString()).replaceAll(",", "|");
+    				entityInformattionMap.get("description").replaceAll(",", GlobalVariables.propertiesDelimiter) + "," +
+    				entityInformattionMap.get(Property.OCCUPATION.toString()).replaceAll(",", GlobalVariables.propertiesDelimiter) + "," +
+    				entityInformattionMap.get(Property.MEMBER_OF.toString()).replaceAll(",", GlobalVariables.propertiesDelimiter) + "," +
+    				entityInformattionMap.get(Property.RELIGION.toString()).replaceAll(",", GlobalVariables.propertiesDelimiter);
     	results.add(line);
     }
     
@@ -207,6 +215,7 @@ public class EntityDescriptionDocumentProcessor implements EntityDocumentProcess
      * wikidata dump file, need to be included in this map 
      */
     private void setEntityInformationMap(){
+    	results.set(0, "Name,Description,Ocupation Wikidata Ids, Member of, Religion");
     	String defaultStr = "";
     	entityInformattionMap.put("name",  defaultStr);
     	entityInformattionMap.put(ENTITY_ID, defaultStr);
@@ -216,7 +225,25 @@ public class EntityDescriptionDocumentProcessor implements EntityDocumentProcess
     	entityInformattionMap.put(Property.OCCUPATION.toString(), defaultStr);
     }
     
-    public ArrayList<String> getResult(){
+    public ArrayList<String> getCSVListResult(){
+    	return results;
+    }
+    
+    /**
+     * Return all the data in file annotates, if a entity were not found then returned it too with a not found
+     * message in the description
+     * @return
+     */
+    public ArrayList<String> getCSVListResultForAllDataInFile(){
+    	for(String s : enttitiesSet){
+    		fileDataMap.remove(s);
+    	}
+    	//all the elements still in the fileDataMap were not found
+    	for(String name : fileDataMap.keySet()){
+    		String line = name + "," + 
+    				"not found" + ",,,,";
+    	results.add(line);
+    	}
     	return results;
     }
     

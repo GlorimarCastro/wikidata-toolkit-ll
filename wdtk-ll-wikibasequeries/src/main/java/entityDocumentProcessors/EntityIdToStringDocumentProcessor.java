@@ -7,20 +7,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.wikidata.wdkt.enums.Language;
-import org.wikidata.wdtk.datamodel.interfaces.EntityDocumentProcessor;
 import org.wikidata.wdtk.datamodel.interfaces.ItemDocument;
 import org.wikidata.wdtk.datamodel.interfaces.MonolingualTextValue;
 import org.wikidata.wdtk.datamodel.interfaces.PropertyDocument;
 
+import Interfaces.EntityDocumentProcessorExtended;
+
 /**
- * This Document Processor is to create a connection between entities, 
- * or properties, ids and their labels (its String representation). The next fields are
+ * This Document Processor is to create a connection between entities ids, 
+ * or properties ids, and their labels (its String representation). The next fields are
  * used:
  * 		
  * @author GL26163
  *
  */
-public class EntityIdToStringDocumentProcessor implements EntityDocumentProcessor{
+public class EntityIdToStringDocumentProcessor implements EntityDocumentProcessorExtended{
 
 	/**
 	 * HashMap with the result. the keys are the String (e.g. name)
@@ -132,7 +133,9 @@ public class EntityIdToStringDocumentProcessor implements EntityDocumentProcesso
 		return idToLabelMap;
 	}
 
-
+	 public ArrayList<String> getCSVListResultForAllDataInFile(){
+		 return null;
+	 }
 	
 	//=============================================================================================
 	//=====PRIVATE METHODS================PRIVATE METHODS====================PRIVATE METHODS=======
