@@ -1,7 +1,10 @@
 package entityDocumentProcessors;
 
 import java.awt.List;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,8 +18,9 @@ import Interfaces.EntityDocumentProcessorExtended;
 
 /**
  * This Document Processor is to create a connection between entities ids, 
- * or properties ids, and their labels (its String representation). The next fields are
- * used:
+ * or properties ids, and their labels (its String representation). 
+ * 
+ * If an output field is set, the user is in charge of closing the BufferWriter
  * 		
  * @author GL26163
  *
@@ -35,6 +39,9 @@ public class EntityIdToStringDocumentProcessor implements EntityDocumentProcesso
 	 * the value is the label corresponding to that entity
 	 */
 	private HashMap<String, String> idToLabelMap;
+	
+	
+	private BufferedWriter writer = null;
 
 	//=============================================================================================
 	//=====CONSTRUCTOR====================CONSTRUCTOR===========================CONSTRUCTOR========
@@ -72,6 +79,16 @@ public class EntityIdToStringDocumentProcessor implements EntityDocumentProcesso
 			
 		}
 		
+		if(writer != null){
+			try {
+				writer.write(entityId + ",\"" + label + "\"");
+				
+				writer.newLine();
+			} catch (IOException e) {
+				
+				e.printStackTrace();
+			}
+		}
 		addToMaps(entityId, label);
 		System.out.println(entityId + ":" + label);
 		
@@ -98,6 +115,16 @@ public class EntityIdToStringDocumentProcessor implements EntityDocumentProcesso
 			}
 		}
 		
+		if(writer != null){
+			try {
+				writer.write(propertyId + ",\"" + label + "\"");
+				
+				writer.newLine();
+			} catch (IOException e) {
+				
+				e.printStackTrace();
+			}
+		}
 		addToMaps(propertyId, label);
 		System.out.println(propertyId + ":" + label);
 		
@@ -124,7 +151,18 @@ public class EntityIdToStringDocumentProcessor implements EntityDocumentProcesso
 	}
 
 
-
+	public void closeWriter() throws IOException{
+		if(writer != null){
+			writer.close();
+		}
+	}
+	/**
+	 * If it is desire to save to result to file set an output file
+	 * @throws IOException 
+	 */
+	public void setOutputFile(File file) throws IOException{
+		this.writer = new BufferedWriter(new FileWriter(file));
+	}
 	/**
 	 * Return a HashMap that map entities id to their labels
 	 * @return

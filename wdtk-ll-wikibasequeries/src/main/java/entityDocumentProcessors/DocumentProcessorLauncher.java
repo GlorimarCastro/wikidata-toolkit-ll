@@ -76,9 +76,18 @@ public class DocumentProcessorLauncher {
 				break;
 				
 			case 2:								//entityIdtoStringDocumentProcessor
-				documentProcessor = new EntityIdToStringDocumentProcessor();
-				ExampleHelpers.processEntitiesFromWikidataDump(documentProcessor);
-				FileHandeler.writeListToFile(documentProcessor.getCSVListResult(), new File(input[0]));
+				System.out.println("-----------EntityIdToStringDocumentProcessor-----------");
+				
+				if(input.length == 1){
+					EntityIdToStringDocumentProcessor documentProcessor2 = new EntityIdToStringDocumentProcessor();
+					documentProcessor2.setOutputFile(new File(input[0]));
+					ExampleHelpers.processEntitiesFromWikidataDump(documentProcessor2);
+					documentProcessor2.closeWriter();
+					//FileHandeler.writeListToFile(documentProcessor.getCSVListResult(), new File(input[0]));
+					
+				}else{
+					System.out.println("You need to pass as argument the file path where to save the results");
+				}
 				break;
 			default:
 				break;
